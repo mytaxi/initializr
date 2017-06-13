@@ -18,9 +18,7 @@ package io.spring.initializr.metadata;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

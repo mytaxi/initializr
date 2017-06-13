@@ -251,7 +251,7 @@ public class ProjectGenerator {
 
 		if (!request.getConfigurations().isEmpty()) {
 		    request.getConfigurations().forEach((type, configurations) -> {
-                final String properties = new String(doGenerateProperties(type, configurations));
+                final String properties = new String(doGenerateProperties(configurations));
                 writeText(new File(resources, type.name().toLowerCase() + ".properties"), properties);
             });
 		}
@@ -266,7 +266,7 @@ public class ProjectGenerator {
 
 	}
 
-    private byte[] doGenerateProperties(Configuration.Type type, Set<Configuration> configurations) {
+    private byte[] doGenerateProperties(Set<Configuration> configurations) {
         final HashMap<String, Object> model = new HashMap<>();
         model.put("properties", configurations);
         return templateRenderer.process("application.properties", model).getBytes();
