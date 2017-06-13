@@ -29,10 +29,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.spring.initializr.InitializrException;
 import io.spring.initializr.metadata.BillOfMaterials;
+import io.spring.initializr.metadata.Configuration;
 import io.spring.initializr.metadata.Dependency;
 import io.spring.initializr.metadata.InitializrConfiguration.Env.Maven.ParentPom;
 import io.spring.initializr.metadata.InitializrMetadata;
@@ -244,7 +246,16 @@ public class ProjectGenerator {
 
 		File resources = new File(dir, "src/main/resources");
 		resources.mkdirs();
+
 		writeText(new File(resources, "application.properties"), "");
+
+		if (!request.getConfigurations().isEmpty()) {
+		    request.getConfigurations().forEach((type, configurations) -> {
+                final String properties = new String(doGenerateProperties(type, configurations));
+                writeText(new File(resources, type.name().toLowerCase() + ".properties"), properties);
+            });
+		}
+
 
 		if (request.hasWebFacet()) {
 			new File(dir, "src/main/resources/templates").mkdirs();
@@ -255,7 +266,13 @@ public class ProjectGenerator {
 
 	}
 
-	/**
+    private byte[] doGenerateProperties(Configuration.Type type, Set<Configuration> configurations) {
+        final HashMap<String, Object> model = new HashMap<>();
+        model.put("properties", configurations);
+        return templateRenderer.process("application.properties", model).getBytes();
+    }
+
+    /**
 	 * Create a distribution file for the specified project structure directory and
 	 * extension
 	 */
@@ -450,6 +467,10 @@ public class ProjectGenerator {
 		}
 		if (!request.getBoms().isEmpty()) {
 			model.put("hasBoms", true);
+		}
+
+		if (!request.getConfigurations().isEmpty()) {
+			request.getConfigurations().forEach((type, configurations) -> model.put(type.name().toLowerCase(), configurations));
 		}
 
 		return model;
